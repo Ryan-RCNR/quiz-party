@@ -37,7 +37,11 @@ export function CreateSession() {
   useEffect(() => {
     questionBankAPI.list()
       .then(setBanks)
-      .catch(() => setBanks([]))
+      .catch((err) => {
+        console.error('Failed to load question banks:', err)
+        setBanks([])
+        setError('Failed to load question banks. Please refresh the page.')
+      })
       .finally(() => setLoading(false))
   }, [])
 

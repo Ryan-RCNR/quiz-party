@@ -70,11 +70,11 @@ export function Play() {
         break
       }
       case 'round_results': {
-        const results = msg as { your_score: number }
+        const yourScore = msg.your_score as number | undefined
         setState((prev) => ({
           ...prev,
           phase: 'intermission',
-          score: results.your_score,
+          score: yourScore ?? prev.score,
         }))
         break
       }

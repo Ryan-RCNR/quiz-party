@@ -29,18 +29,14 @@ async function apiFetch<T>(
   };
 
   // Add auth token if available (teacher routes via Clerk)
-  if (typeof window !== 'undefined') {
-    // @ts-expect-error Clerk global
-    const clerk = window.Clerk;
-    if (clerk?.session) {
-      try {
-        const token = await clerk.session.getToken();
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-      } catch {
-        // Silent fail — unauthenticated request
+  if (typeof window !== 'undefined' && window.Clerk?.session) {
+    try {
+      const token = await window.Clerk.session.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
+    } catch {
+      // Silent fail — unauthenticated request
     }
   }
 

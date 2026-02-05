@@ -194,7 +194,7 @@ export function Play() {
             <div className="grid grid-cols-2 gap-3">
               {state.currentQuestion.options.map((option, i) => (
                 <button
-                  key={i}
+                  key={`${state.currentQuestion.question_id}-${i}`}
                   onClick={() => handleAnswer(i)}
                   disabled={state.selectedAnswer !== null}
                   className={`p-4 rounded-xl text-white font-medium text-left transition-all ${

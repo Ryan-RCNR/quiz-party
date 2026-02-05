@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd ../.. && pnpm turbo build --filter=@quiz-party/student",
-  "outputDirectory": "dist",
-  "installCommand": "cd ../.. && pnpm install",
-  "framework": "vite"
-}

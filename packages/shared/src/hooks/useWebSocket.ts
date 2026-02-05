@@ -19,6 +19,7 @@ interface UseWebSocketOptions {
   playerToken?: string;
   onMessage?: (data: Record<string, unknown>) => void;
   onError?: (error: Event) => void;
+  onReconnectExhausted?: () => void;
   enabled?: boolean;
   wsUrl?: string;
 }
@@ -37,6 +38,7 @@ export function useWebSocket({
   playerToken,
   onMessage,
   onError,
+  onReconnectExhausted,
   enabled = true,
   wsUrl,
 }: UseWebSocketOptions): UseWebSocketReturn {
@@ -48,8 +50,10 @@ export function useWebSocket({
   const messageQueue = useRef<Record<string, unknown>[]>([]);
   const onMessageRef = useRef(onMessage);
   const onErrorRef = useRef(onError);
+  const onReconnectExhaustedRef = useRef(onReconnectExhausted);
   onMessageRef.current = onMessage;
   onErrorRef.current = onError;
+  onReconnectExhaustedRef.current = onReconnectExhausted;
 
   const connect = useCallback(() => {
     if (!enabled || !sessionCode) return;
@@ -117,6 +121,10 @@ export function useWebSocket({
         reconnectTimer.current = setTimeout(connect, delay);
       } else {
         setConnectionStatus('disconnected');
+        // Notify parent that reconnection attempts have been exhausted
+        if (reconnectAttempts.current >= MAX_RECONNECT_ATTEMPTS) {
+          onReconnectExhaustedRef.current?.();
+        }
       }
     };
 

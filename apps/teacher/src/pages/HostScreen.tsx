@@ -111,7 +111,7 @@ export function HostScreen() {
     [teams]
   )
 
-  const handleStartGame = () => {
+  const sendStartGameSignal = () => {
     send({ type: 'start_game' })
   }
 
@@ -157,7 +157,7 @@ export function HostScreen() {
           </div>
           {gamePhase === 'lobby' && (
             <button
-              onClick={handleStartGame}
+              onClick={sendStartGameSignal}
               disabled={players.length < 2}
               className="px-6 py-3 bg-ice text-[var(--deep-sea)] font-bold rounded-lg disabled:opacity-40 hover:bg-ice-light transition-colors"
             >

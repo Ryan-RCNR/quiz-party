@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { sessionAPI, questionBankAPI, type SessionConfig, type QuestionBank } from '@quiz-party/shared'
 
@@ -41,6 +41,16 @@ export function Dashboard() {
     fetchData()
   }, [])
 
+  // Memoize sliced arrays to prevent recreation on every render
+  const recentSessions = useMemo(
+    () => sessions.slice(0, RECENT_SESSIONS_LIMIT),
+    [sessions]
+  )
+  const recentBanks = useMemo(
+    () => banks.slice(0, RECENT_BANKS_LIMIT),
+    [banks]
+  )
+
   if (loading) {
     return <div className="text-white/50 text-center py-20">Loading...</div>
   }
@@ -74,7 +84,7 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {sessions.slice(0, RECENT_SESSIONS_LIMIT).map((s) => (
+              {recentSessions.map((s) => (
                 <div key={s.id} className="glass rounded-xl p-4 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-3">
@@ -127,7 +137,7 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {banks.slice(0, RECENT_BANKS_LIMIT).map((b) => (
+              {recentBanks.map((b) => (
                 <Link
                   key={b.id}
                   to={`/banks/${b.id}`}

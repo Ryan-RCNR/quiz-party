@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { sessionAPI, questionBankAPI, type SessionConfig, type QuestionBank } from '@quiz-party/shared'
 
+// Dashboard list display limits
+const RECENT_SESSIONS_LIMIT = 10
+const RECENT_BANKS_LIMIT = 5
+
 export function Dashboard() {
   const [sessions, setSessions] = useState<SessionConfig[]>([])
   const [banks, setBanks] = useState<QuestionBank[]>([])
@@ -70,7 +74,7 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {sessions.slice(0, 10).map((s) => (
+              {sessions.slice(0, RECENT_SESSIONS_LIMIT).map((s) => (
                 <div key={s.id} className="glass rounded-xl p-4 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-3">
@@ -123,7 +127,7 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {banks.slice(0, 5).map((b) => (
+              {banks.slice(0, RECENT_BANKS_LIMIT).map((b) => (
                 <Link
                   key={b.id}
                   to={`/banks/${b.id}`}

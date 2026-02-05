@@ -42,59 +42,53 @@ export function HostScreen() {
       .finally(() => setLoading(false))
   }, [code, navigate])
 
-  // Handle WebSocket messages
+  // Message handlers for WebSocket events
+  const messageHandlers = useMemo(() => ({
+    lobby_update: (msg: WSLobbyUpdate) => {
+      setPlayers(msg.players)
+      setGamePhase(msg.status)
+    },
+    player_connected: (msg: WSPlayerConnected) => {
+      setPlayers((prev) => {
+        if (prev.find((p) => p.player_id === msg.player_id)) return prev
+        return [...prev, {
+          player_id: msg.player_id,
+          display_name: msg.display_name,
+          team_id: null,
+          score: 0,
+          connected: true,
+        }]
+      })
+    },
+    player_disconnected: (msg: WSPlayerDisconnected) => {
+      setPlayers((prev) =>
+        prev.map((p) =>
+          p.player_id === msg.player_id ? { ...p, connected: false } : p
+        )
+      )
+    },
+    game_intro: (msg: WSGameIntro) => {
+      setGamePhase('game_intro')
+      setCurrentGame(msg.game_type)
+    },
+    round_results: (msg: WSRoundResults) => {
+      setGamePhase('round_results')
+      setTeams(msg.teams)
+    },
+    session_ended: () => {
+      setGamePhase('ended')
+    },
+  }), [])
+
+  // Handle WebSocket messages using handler lookup
   const handleMessage = useCallback((data: Record<string, unknown>) => {
     const msg = data as { type: string } & Record<string, unknown>
-
-    switch (msg.type) {
-      case 'lobby_update': {
-        const lobby = msg as unknown as WSLobbyUpdate
-        setPlayers(lobby.players)
-        setGamePhase(lobby.status)
-        break
-      }
-      case 'player_connected': {
-        const connected = msg as unknown as WSPlayerConnected
-        setPlayers((prev) => {
-          if (prev.find((p) => p.player_id === connected.player_id)) return prev
-          return [...prev, {
-            player_id: connected.player_id,
-            display_name: connected.display_name,
-            team_id: null,
-            score: 0,
-            connected: true,
-          }]
-        })
-        break
-      }
-      case 'player_disconnected': {
-        const disconnected = msg as unknown as WSPlayerDisconnected
-        setPlayers((prev) =>
-          prev.map((p) =>
-            p.player_id === disconnected.player_id
-              ? { ...p, connected: false }
-              : p
-          )
-        )
-        break
-      }
-      case 'game_intro': {
-        const intro = msg as unknown as WSGameIntro
-        setGamePhase('game_intro')
-        setCurrentGame(intro.game_type)
-        break
-      }
-      case 'round_results': {
-        const results = msg as unknown as WSRoundResults
-        setGamePhase('round_results')
-        setTeams(results.teams)
-        break
-      }
-      case 'session_ended':
-        setGamePhase('ended')
-        break
+    const handler = messageHandlers[msg.type as keyof typeof messageHandlers]
+    if (handler) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handler(msg as any)
     }
-  }, [])
+  }, [messageHandlers])
 
   // WebSocket connection
   const { isConnected, send, connectionStatus } = useWebSocket({

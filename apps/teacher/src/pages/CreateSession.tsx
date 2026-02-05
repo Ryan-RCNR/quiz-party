@@ -6,7 +6,6 @@ import {
   type QuestionBank,
   type SessionPreset,
   type ChaosLevel,
-  GAME_INFO,
 } from '@quiz-party/shared'
 
 const PRESETS: Record<SessionPreset, { name: string; rounds: number; description: string }> = {

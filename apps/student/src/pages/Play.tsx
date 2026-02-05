@@ -36,54 +36,54 @@ export function Play() {
     currentGame: null,
   })
 
+  // Message handlers for WebSocket events
+  const messageHandlers = useMemo(() => ({
+    game_intro: (msg: { game_type: MiniGameType }) => {
+      setState((prev) => ({
+        ...prev,
+        phase: 'intermission',
+        currentGame: msg.game_type,
+      }))
+    },
+    question: (msg: WSPlayerQuestion) => {
+      setState((prev) => ({
+        ...prev,
+        phase: 'question',
+        currentQuestion: msg,
+        selectedAnswer: null,
+        timeRemaining: msg.time_limit,
+        currentGame: msg.game_type,
+      }))
+    },
+    answer_result: (msg: WSAnswerResult) => {
+      setState((prev) => ({
+        ...prev,
+        phase: 'result',
+        lastResult: msg,
+        score: msg.new_total,
+      }))
+    },
+    round_results: (msg: Record<string, unknown>) => {
+      const yourScore = typeof msg.your_score === 'number' ? msg.your_score : undefined
+      setState((prev) => ({
+        ...prev,
+        phase: 'intermission',
+        score: yourScore ?? prev.score,
+      }))
+    },
+    session_ended: () => {
+      setState((prev) => ({ ...prev, phase: 'ended' }))
+    },
+  }), [])
+
   const handleMessage = useCallback((data: Record<string, unknown>) => {
     const msg = data as { type: string } & Record<string, unknown>
-
-    switch (msg.type) {
-      case 'game_intro': {
-        setState((prev) => ({
-          ...prev,
-          phase: 'intermission',
-          currentGame: msg.game_type as MiniGameType,
-        }))
-        break
-      }
-      case 'question': {
-        const q = msg as unknown as WSPlayerQuestion
-        setState((prev) => ({
-          ...prev,
-          phase: 'question',
-          currentQuestion: q,
-          selectedAnswer: null,
-          timeRemaining: q.time_limit,
-          currentGame: q.game_type,
-        }))
-        break
-      }
-      case 'answer_result': {
-        const result = msg as unknown as WSAnswerResult
-        setState((prev) => ({
-          ...prev,
-          phase: 'result',
-          lastResult: result,
-          score: result.new_total,
-        }))
-        break
-      }
-      case 'round_results': {
-        const yourScore = typeof msg.your_score === 'number' ? msg.your_score : undefined
-        setState((prev) => ({
-          ...prev,
-          phase: 'intermission',
-          score: yourScore ?? prev.score,
-        }))
-        break
-      }
-      case 'session_ended':
-        setState((prev) => ({ ...prev, phase: 'ended' }))
-        break
+    const handler = messageHandlers[msg.type as keyof typeof messageHandlers]
+    if (handler) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handler(msg as any)
     }
-  }, [])
+  }, [messageHandlers])
 
   const { isConnected, send } = useWebSocket({
     sessionCode: code || '',

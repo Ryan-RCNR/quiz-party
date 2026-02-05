@@ -1,0 +1,19 @@
+{
+  "name": "quiz-party",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "dev:teacher": "turbo dev --filter=@quiz-party/teacher",
+    "dev:student": "turbo dev --filter=@quiz-party/student",
+    "build:teacher": "turbo build --filter=@quiz-party/teacher",
+    "build:student": "turbo build --filter=@quiz-party/student"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

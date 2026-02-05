@@ -1,7 +1,7 @@
 /**
  * useFetchData Hook
  *
- * Reusable data fetching hook with loading, error, and refetch support
+ * Reusable data fetching hook with loading, error, refetch support, and request deduplication
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -18,7 +18,17 @@ export interface UseFetchDataOptions {
   immediate?: boolean;
   /** Polling interval in milliseconds (if set, will refetch on interval) */
   pollInterval?: number;
+  /** Cache key for request deduplication (if set, concurrent requests with same key are deduplicated) */
+  cacheKey?: string;
+  /** Cache TTL in milliseconds (default: 0, no caching) */
+  cacheTTL?: number;
 }
+
+// In-flight request cache for deduplication
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+// Result cache for TTL-based caching
+const resultCache = new Map<string, { data: unknown; timestamp: number }>();
 
 /**
  * Hook for fetching data with loading, error, and refetch support
@@ -26,14 +36,14 @@ export interface UseFetchDataOptions {
  * @example
  * const { data, loading, error, refetch } = useFetchData(
  *   () => sessionAPI.list(),
- *   { immediate: true }
+ *   { immediate: true, cacheKey: 'sessions', cacheTTL: 5000 }
  * );
  */
 export function useFetchData<T>(
   fetchFn: () => Promise<T>,
   options: UseFetchDataOptions = {}
 ): UseFetchDataResult<T> {
-  const { immediate = true, pollInterval } = options;
+  const { immediate = true, pollInterval, cacheKey, cacheTTL = 0 } = options;
 
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(immediate);
@@ -44,20 +54,60 @@ export function useFetchData<T>(
   fetchFnRef.current = fetchFn;
 
   const refetch = useCallback(async () => {
+    // Check cache if TTL is set
+    if (cacheKey && cacheTTL > 0) {
+      const cached = resultCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < cacheTTL) {
+        setData(cached.data as T);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Check for in-flight request
+    if (cacheKey && inFlightRequests.has(cacheKey)) {
+      try {
+        const result = await inFlightRequests.get(cacheKey);
+        setData(result as T);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'An error occurred';
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
+    const fetchPromise = fetchFnRef.current();
+
+    // Store in-flight request
+    if (cacheKey) {
+      inFlightRequests.set(cacheKey, fetchPromise);
+    }
+
     try {
-      const result = await fetchFnRef.current();
+      const result = await fetchPromise;
       setData(result);
+
+      // Cache result if TTL is set
+      if (cacheKey && cacheTTL > 0) {
+        resultCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
       setError(message);
       console.error('Fetch error:', err);
     } finally {
+      // Remove from in-flight requests
+      if (cacheKey) {
+        inFlightRequests.delete(cacheKey);
+      }
       setLoading(false);
     }
-  }, []);
+  }, [cacheKey, cacheTTL]);
 
   // Initial fetch
   useEffect(() => {
@@ -75,4 +125,18 @@ export function useFetchData<T>(
   }, [pollInterval, refetch]);
 
   return { data, loading, error, refetch };
+}
+
+/**
+ * Clear all cached data
+ */
+export function clearFetchCache(): void {
+  resultCache.clear();
+}
+
+/**
+ * Clear specific cache entry
+ */
+export function clearCacheKey(key: string): void {
+  resultCache.delete(key);
 }

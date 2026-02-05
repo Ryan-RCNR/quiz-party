@@ -57,7 +57,7 @@ export function Join() {
           >
             Join a different game
           </button>
-          {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
+          {error && <p role="alert" aria-live="polite" className="text-red-400 text-sm mt-3">{error}</p>}
         </div>
       </div>
     )
@@ -136,7 +136,7 @@ export function Join() {
         >
           {loading ? 'Joining...' : 'JOIN'}
         </button>
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        {error && <p role="alert" aria-live="polite" className="text-red-400 text-sm text-center">{error}</p>}
       </form>
     </div>
   )

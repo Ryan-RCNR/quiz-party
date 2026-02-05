@@ -161,8 +161,8 @@ export function Play() {
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         {/* Waiting */}
         {state.phase === 'waiting' && (
-          <div className="text-center">
-            <div className="text-5xl mb-4">⏳</div>
+          <div className="text-center" role="status" aria-live="polite">
+            <div className="text-5xl mb-4" aria-hidden="true">⏳</div>
             <p className="text-white/60">Waiting for next question...</p>
             <p className={`text-sm mt-2 ${isConnected ? 'text-green-400' : 'text-yellow-400'}`}>
               {isConnected ? 'Connected' : 'Reconnecting...'}
@@ -172,8 +172,8 @@ export function Play() {
 
         {/* Intermission / Game Intro */}
         {state.phase === 'intermission' && gameInfo && (
-          <div className="text-center glass rounded-2xl p-8 w-full max-w-md">
-            <div className="text-6xl mb-4">{gameInfo.emoji}</div>
+          <div className="text-center glass rounded-2xl p-8 w-full max-w-md" role="status" aria-live="polite">
+            <div className="text-6xl mb-4" aria-hidden="true">{gameInfo.emoji}</div>
             <h2 className="text-2xl font-bold text-white mb-2">{gameInfo.name}</h2>
             <p className="text-white/60">{gameInfo.description}</p>
           </div>
@@ -218,8 +218,8 @@ export function Play() {
 
         {/* Result */}
         {state.phase === 'result' && state.lastResult && (
-          <div className="text-center glass rounded-2xl p-8 w-full max-w-md">
-            <div className="text-6xl mb-4">
+          <div className="text-center glass rounded-2xl p-8 w-full max-w-md" role="alert" aria-live="assertive">
+            <div className="text-6xl mb-4" aria-hidden="true">
               {state.lastResult.correct ? '✅' : '❌'}
             </div>
             <h2 className={`text-2xl font-bold mb-2 ${state.lastResult.correct ? 'text-green-400' : 'text-red-400'}`}>
@@ -238,8 +238,8 @@ export function Play() {
 
         {/* Ended */}
         {state.phase === 'ended' && (
-          <div className="text-center glass rounded-2xl p-8 w-full max-w-md">
-            <div className="text-6xl mb-4">🎉</div>
+          <div className="text-center glass rounded-2xl p-8 w-full max-w-md" role="status" aria-live="polite">
+            <div className="text-6xl mb-4" aria-hidden="true">🎉</div>
             <h2 className="text-2xl font-bold text-white mb-2">Game Over!</h2>
             <p className="text-[var(--ice)] text-3xl font-bold mb-4">{state.score} points</p>
             <button

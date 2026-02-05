@@ -128,7 +128,7 @@ export function HostScreen() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white/50">Loading...</div>
+        <div className="text-white/50" role="status" aria-live="polite">Loading...</div>
       </div>
     )
   }
@@ -136,7 +136,7 @@ export function HostScreen() {
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white/50">Session not found</div>
+        <div className="text-white/50" role="alert" aria-live="assertive">Session not found</div>
       </div>
     )
   }

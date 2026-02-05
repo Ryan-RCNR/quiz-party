@@ -8,9 +8,10 @@ export function Join() {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showNewGameForm, setShowNewGameForm] = useState(false)
 
   // Check for existing session
-  const existing = playerAPI.getStoredSession()
+  const existing = !showNewGameForm ? playerAPI.getStoredSession() : null
   if (existing) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -50,7 +51,7 @@ export function Join() {
           <button
             onClick={() => {
               playerAPI.clearSession()
-              window.location.reload()
+              setShowNewGameForm(true)
             }}
             className="text-white/40 text-sm underline"
           >

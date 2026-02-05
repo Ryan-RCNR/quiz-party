@@ -68,8 +68,10 @@ export function Join() {
     const trimmedCode = code.trim().toUpperCase()
     const trimmedName = name.trim()
 
-    if (trimmedCode.length < 4) {
-      setError('Enter a valid game code')
+    // Validate game code format (alphanumeric, 4-6 characters)
+    const codePattern = /^[A-Z0-9]{4,6}$/
+    if (!codePattern.test(trimmedCode)) {
+      setError('Enter a valid game code (4-6 alphanumeric characters)')
       return
     }
     if (trimmedName.length < 2) {

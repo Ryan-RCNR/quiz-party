@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   useWebSocket,
@@ -24,6 +24,7 @@ export function Play() {
   const navigate = useNavigate()
   const session = playerAPI.getStoredSession()
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastQuestionIdRef = useRef<string | null>(null)
 
   const [state, setState] = useState<GameState>({
     phase: 'waiting',
@@ -93,9 +94,14 @@ export function Play() {
     enabled: !!code && !!session,
   })
 
-  // Timer countdown
+  // Timer countdown - only restart when phase changes or question_id changes
+  const currentQuestionId = state.currentQuestion?.question_id ?? null
   useEffect(() => {
-    if (state.phase === 'question' && state.timeRemaining > 0) {
+    // Track question changes to restart timer on new questions
+    const isNewQuestion = currentQuestionId !== lastQuestionIdRef.current
+    lastQuestionIdRef.current = currentQuestionId
+
+    if (state.phase === 'question' && (isNewQuestion || state.timeRemaining > 0)) {
       timerRef.current = setInterval(() => {
         setState((prev) => {
           if (prev.timeRemaining <= 1) {
@@ -109,7 +115,7 @@ export function Play() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [state.phase, state.currentQuestion])
+  }, [state.phase, currentQuestionId])
 
   useEffect(() => {
     if (!session) {

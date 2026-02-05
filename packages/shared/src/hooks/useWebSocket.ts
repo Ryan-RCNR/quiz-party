@@ -6,6 +6,11 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 
+// WebSocket connection constants
+const INITIAL_RECONNECT_DELAY_MS = 1000;
+const MAX_RECONNECT_DELAY_MS = 15000;
+const MAX_RECONNECT_ATTEMPTS = 10;
+
 interface UseWebSocketOptions {
   sessionCode: string;
   role: 'host' | 'player';
@@ -38,7 +43,6 @@ export function useWebSocket({
   const [connectionStatus, setConnectionStatus] = useState<UseWebSocketReturn['connectionStatus']>('disconnected');
   const reconnectAttempts = useRef(0);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const maxReconnectAttempts = 10;
   const messageQueue = useRef<Record<string, unknown>[]>([]);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
@@ -99,8 +103,11 @@ export function useWebSocket({
       setIsConnected(false);
       wsRef.current = null;
 
-      if (enabled && reconnectAttempts.current < maxReconnectAttempts) {
-        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 15000);
+      if (enabled && reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+        const delay = Math.min(
+          INITIAL_RECONNECT_DELAY_MS * Math.pow(2, reconnectAttempts.current),
+          MAX_RECONNECT_DELAY_MS
+        );
         reconnectAttempts.current += 1;
         setConnectionStatus('reconnecting');
         reconnectTimer.current = setTimeout(connect, delay);

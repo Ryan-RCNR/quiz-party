@@ -6,16 +6,35 @@ export function Dashboard() {
   const [sessions, setSessions] = useState<SessionConfig[]>([])
   const [banks, setBanks] = useState<QuestionBank[]>([])
   const [loading, setLoading] = useState(true)
+  const [sessionsError, setSessionsError] = useState<string | null>(null)
+  const [banksError, setBanksError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([
-      sessionAPI.list().catch(() => []),
-      questionBankAPI.list().catch(() => []),
-    ]).then(([sessData, bankData]) => {
-      setSessions(sessData)
-      setBanks(bankData)
+    const fetchData = async () => {
+      // Fetch sessions
+      try {
+        const sessData = await sessionAPI.list()
+        setSessions(sessData)
+      } catch (err) {
+        console.error('Failed to load sessions:', err)
+        setSessionsError(err instanceof Error ? err.message : 'Failed to load sessions')
+        setSessions([])
+      }
+
+      // Fetch question banks
+      try {
+        const bankData = await questionBankAPI.list()
+        setBanks(bankData)
+      } catch (err) {
+        console.error('Failed to load question banks:', err)
+        setBanksError(err instanceof Error ? err.message : 'Failed to load question banks')
+        setBanks([])
+      }
+
       setLoading(false)
-    })
+    }
+
+    fetchData()
   }, [])
 
   if (loading) {
@@ -40,7 +59,12 @@ export function Dashboard() {
         {/* Recent Sessions */}
         <div>
           <h3 className="text-lg font-semibold text-white/80 mb-4">Recent Sessions</h3>
-          {sessions.length === 0 ? (
+          {sessionsError ? (
+            <div className="glass rounded-xl p-8 text-center">
+              <div className="text-red-400 mb-2">Failed to load sessions</div>
+              <p className="text-white/50 text-sm">{sessionsError}</p>
+            </div>
+          ) : sessions.length === 0 ? (
             <div className="glass rounded-xl p-8 text-center text-white/50">
               No sessions yet. Create your first one!
             </div>
@@ -88,7 +112,12 @@ export function Dashboard() {
               View All
             </Link>
           </div>
-          {banks.length === 0 ? (
+          {banksError ? (
+            <div className="glass rounded-xl p-8 text-center">
+              <div className="text-red-400 mb-2">Failed to load question banks</div>
+              <p className="text-white/50 text-sm">{banksError}</p>
+            </div>
+          ) : banks.length === 0 ? (
             <div className="glass rounded-xl p-8 text-center text-white/50">
               No question banks yet. Create one to get started!
             </div>

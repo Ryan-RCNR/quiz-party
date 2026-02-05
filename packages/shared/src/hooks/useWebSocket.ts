@@ -18,6 +18,7 @@ interface UseWebSocketOptions {
   playerId?: string;
   playerToken?: string;
   onMessage?: (data: Record<string, unknown>) => void;
+  onError?: (error: Event) => void;
   enabled?: boolean;
   wsUrl?: string;
 }
@@ -35,6 +36,7 @@ export function useWebSocket({
   playerId,
   playerToken,
   onMessage,
+  onError,
   enabled = true,
   wsUrl,
 }: UseWebSocketOptions): UseWebSocketReturn {
@@ -45,7 +47,9 @@ export function useWebSocket({
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messageQueue = useRef<Record<string, unknown>[]>([]);
   const onMessageRef = useRef(onMessage);
+  const onErrorRef = useRef(onError);
   onMessageRef.current = onMessage;
+  onErrorRef.current = onError;
 
   const connect = useCallback(() => {
     if (!enabled || !sessionCode) return;
@@ -116,8 +120,13 @@ export function useWebSocket({
       }
     };
 
-    ws.onerror = () => {
-      // onclose will handle reconnection
+    ws.onerror = (error) => {
+      // Log error for debugging (onclose will handle reconnection)
+      if (import.meta.env.DEV) {
+        console.error('WebSocket error:', error);
+      }
+      // Notify parent component if callback provided
+      onErrorRef.current?.(error);
     };
   }, [enabled, sessionCode, role, token, playerId, playerToken, wsUrl]);
 

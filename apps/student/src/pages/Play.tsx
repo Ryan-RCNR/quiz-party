@@ -6,7 +6,13 @@ import {
   type WSPlayerQuestion,
   type WSAnswerResult,
   type MiniGameType,
+  type PlayerWSMessage,
   GAME_INFO,
+  isPlayerQuestion,
+  isAnswerResult,
+  isGameIntro,
+  isRoundResults,
+  isSessionEnded,
 } from '@quiz-party/shared'
 
 interface GameState {
@@ -36,16 +42,15 @@ export function Play() {
     currentGame: null,
   })
 
-  // Message handlers for WebSocket events
-  const messageHandlers = useMemo(() => ({
-    game_intro: (msg: { game_type: MiniGameType }) => {
+  // Handle WebSocket messages with type guards
+  const handleMessage = useCallback((msg: PlayerWSMessage) => {
+    if (isGameIntro(msg)) {
       setState((prev) => ({
         ...prev,
         phase: 'intermission',
         currentGame: msg.game_type,
       }))
-    },
-    question: (msg: WSPlayerQuestion) => {
+    } else if (isPlayerQuestion(msg)) {
       setState((prev) => ({
         ...prev,
         phase: 'question',
@@ -54,38 +59,26 @@ export function Play() {
         timeRemaining: msg.time_limit,
         currentGame: msg.game_type,
       }))
-    },
-    answer_result: (msg: WSAnswerResult) => {
+    } else if (isAnswerResult(msg)) {
       setState((prev) => ({
         ...prev,
         phase: 'result',
         lastResult: msg,
         score: msg.new_total,
       }))
-    },
-    round_results: (msg: Record<string, unknown>) => {
-      const yourScore = typeof msg.your_score === 'number' ? msg.your_score : undefined
+    } else if (isRoundResults(msg)) {
+      const yourScore = 'your_score' in msg && typeof msg.your_score === 'number' ? msg.your_score : undefined
       setState((prev) => ({
         ...prev,
         phase: 'intermission',
         score: yourScore ?? prev.score,
       }))
-    },
-    session_ended: () => {
+    } else if (isSessionEnded(msg)) {
       setState((prev) => ({ ...prev, phase: 'ended' }))
-    },
-  }), [])
-
-  const handleMessage = useCallback((data: Record<string, unknown>) => {
-    const msg = data as { type: string } & Record<string, unknown>
-    const handler = messageHandlers[msg.type as keyof typeof messageHandlers]
-    if (handler) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler(msg as any)
     }
-  }, [messageHandlers])
+  }, [])
 
-  const { isConnected, send } = useWebSocket({
+  const { isConnected, send } = useWebSocket<PlayerWSMessage>({
     sessionCode: code || '',
     role: 'player',
     playerId: session?.playerId,

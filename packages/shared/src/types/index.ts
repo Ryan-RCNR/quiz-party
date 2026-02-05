@@ -255,3 +255,79 @@ export type PlayerWSMessage =
   | WSPlayerGameIntro
   | WSPlayerRoundResults
   | WSSessionEnded;
+
+// Type Guards for WebSocket Messages
+export function isHostWSMessage(msg: unknown): msg is HostWSMessage {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = msg as Record<string, unknown>;
+  const validTypes = [
+    'lobby_update',
+    'player_connected',
+    'player_disconnected',
+    'game_intro',
+    'host_question',
+    'answer_update',
+    'round_results',
+    'session_complete',
+    'session_ended',
+  ];
+  return typeof m.type === 'string' && validTypes.includes(m.type);
+}
+
+export function isPlayerWSMessage(msg: unknown): msg is PlayerWSMessage {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = msg as Record<string, unknown>;
+  const validTypes = ['question', 'answer_result', 'game_intro', 'round_results', 'session_ended'];
+  return typeof m.type === 'string' && validTypes.includes(m.type);
+}
+
+// Individual message type guards
+export function isLobbyUpdate(msg: unknown): msg is WSLobbyUpdate {
+  return isHostWSMessage(msg) && msg.type === 'lobby_update';
+}
+
+export function isPlayerConnected(msg: unknown): msg is WSPlayerConnected {
+  return isHostWSMessage(msg) && msg.type === 'player_connected';
+}
+
+export function isPlayerDisconnected(msg: unknown): msg is WSPlayerDisconnected {
+  return isHostWSMessage(msg) && msg.type === 'player_disconnected';
+}
+
+export function isGameIntro(msg: unknown): msg is WSGameIntro | WSPlayerGameIntro {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = msg as Record<string, unknown>;
+  return m.type === 'game_intro';
+}
+
+export function isHostQuestion(msg: unknown): msg is WSHostQuestion {
+  return isHostWSMessage(msg) && msg.type === 'host_question';
+}
+
+export function isAnswerUpdate(msg: unknown): msg is WSAnswerUpdate {
+  return isHostWSMessage(msg) && msg.type === 'answer_update';
+}
+
+export function isRoundResults(msg: unknown): msg is WSRoundResults | WSPlayerRoundResults {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = msg as Record<string, unknown>;
+  return m.type === 'round_results';
+}
+
+export function isSessionComplete(msg: unknown): msg is WSSessionComplete {
+  return isHostWSMessage(msg) && msg.type === 'session_complete';
+}
+
+export function isSessionEnded(msg: unknown): msg is WSSessionEnded {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = msg as Record<string, unknown>;
+  return m.type === 'session_ended';
+}
+
+export function isPlayerQuestion(msg: unknown): msg is WSPlayerQuestion {
+  return isPlayerWSMessage(msg) && msg.type === 'question';
+}
+
+export function isAnswerResult(msg: unknown): msg is WSAnswerResult {
+  return isPlayerWSMessage(msg) && msg.type === 'answer_result';
+}

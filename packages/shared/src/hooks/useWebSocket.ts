@@ -5,19 +5,44 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import type { HostWSMessage, PlayerWSMessage } from '../types';
 
 // WebSocket connection constants
 const INITIAL_RECONNECT_DELAY_MS = 1000;
 const MAX_RECONNECT_DELAY_MS = 15000;
 const MAX_RECONNECT_ATTEMPTS = 10;
 
-interface UseWebSocketOptions {
+// Message type union for WebSocket communication
+export type WebSocketMessageData = HostWSMessage | PlayerWSMessage;
+
+// Outbound message types (client to server)
+export interface WSOutboundInit {
+  type: 'init';
+  role: 'host' | 'player';
+  token?: string;
+  player_id?: string;
+  player_token?: string;
+}
+
+export interface WSOutboundAnswer {
+  type: 'submit_answer';
+  question_id: string;
+  answer_index: number;
+}
+
+export interface WSOutboundHostAction {
+  type: 'start_game' | 'next_question' | 'pause' | 'resume' | 'end_session';
+}
+
+export type WSOutboundMessage = WSOutboundInit | WSOutboundAnswer | WSOutboundHostAction | { type: 'pong' };
+
+interface UseWebSocketOptions<T extends WebSocketMessageData = WebSocketMessageData> {
   sessionCode: string;
   role: 'host' | 'player';
   token?: string;
   playerId?: string;
   playerToken?: string;
-  onMessage?: (data: Record<string, unknown>) => void;
+  onMessage?: (data: T) => void;
   onError?: (error: Event) => void;
   onReconnectExhausted?: () => void;
   enabled?: boolean;
@@ -26,11 +51,11 @@ interface UseWebSocketOptions {
 
 interface UseWebSocketReturn {
   isConnected: boolean;
-  send: (data: Record<string, unknown>) => void;
+  send: (data: WSOutboundMessage | Record<string, unknown>) => void;
   connectionStatus: 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 }
 
-export function useWebSocket({
+export function useWebSocket<T extends WebSocketMessageData = WebSocketMessageData>({
   sessionCode,
   role,
   token,
@@ -41,13 +66,13 @@ export function useWebSocket({
   onReconnectExhausted,
   enabled = true,
   wsUrl,
-}: UseWebSocketOptions): UseWebSocketReturn {
+}: UseWebSocketOptions<T>): UseWebSocketReturn {
   const wsRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<UseWebSocketReturn['connectionStatus']>('disconnected');
   const reconnectAttempts = useRef(0);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const messageQueue = useRef<Record<string, unknown>[]>([]);
+  const messageQueue = useRef<(WSOutboundMessage | Record<string, unknown>)[]>([]);
   const onMessageRef = useRef(onMessage);
   const onErrorRef = useRef(onError);
   const onReconnectExhaustedRef = useRef(onReconnectExhausted);
@@ -113,7 +138,7 @@ export function useWebSocket({
           return;
         }
 
-        onMessageRef.current?.(data);
+        onMessageRef.current?.(data as T);
       } catch (error) {
         // Invalid JSON
         if (import.meta.env.DEV) {
@@ -164,7 +189,7 @@ export function useWebSocket({
     };
   }, [connect]);
 
-  const send = useCallback((data: Record<string, unknown>) => {
+  const send = useCallback((data: WSOutboundMessage | Record<string, unknown>) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data));
     } else {
@@ -175,4 +200,4 @@ export function useWebSocket({
   return { isConnected, send, connectionStatus };
 }
 
-export type { UseWebSocketOptions, UseWebSocketReturn };
+export type { UseWebSocketOptions, UseWebSocketReturn, WebSocketMessageData, WSOutboundMessage };

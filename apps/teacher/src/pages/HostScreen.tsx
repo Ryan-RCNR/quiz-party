@@ -7,12 +7,14 @@ import {
   type SessionConfig,
   type PlayerInfo,
   type TeamScore,
-  type WSLobbyUpdate,
-  type WSPlayerConnected,
-  type WSPlayerDisconnected,
-  type WSGameIntro,
-  type WSRoundResults,
+  type HostWSMessage,
   GAME_INFO,
+  isLobbyUpdate,
+  isPlayerConnected,
+  isPlayerDisconnected,
+  isGameIntro,
+  isRoundResults,
+  isSessionEnded,
 } from '@quiz-party/shared'
 
 export function HostScreen() {
@@ -42,13 +44,12 @@ export function HostScreen() {
       .finally(() => setLoading(false))
   }, [code, navigate])
 
-  // Message handlers for WebSocket events
-  const messageHandlers = useMemo(() => ({
-    lobby_update: (msg: WSLobbyUpdate) => {
+  // Handle WebSocket messages with type guards
+  const handleMessage = useCallback((msg: HostWSMessage) => {
+    if (isLobbyUpdate(msg)) {
       setPlayers(msg.players)
       setGamePhase(msg.status)
-    },
-    player_connected: (msg: WSPlayerConnected) => {
+    } else if (isPlayerConnected(msg)) {
       setPlayers((prev) => {
         if (prev.find((p) => p.player_id === msg.player_id)) return prev
         return [...prev, {
@@ -59,39 +60,27 @@ export function HostScreen() {
           connected: true,
         }]
       })
-    },
-    player_disconnected: (msg: WSPlayerDisconnected) => {
+    } else if (isPlayerDisconnected(msg)) {
       setPlayers((prev) =>
         prev.map((p) =>
           p.player_id === msg.player_id ? { ...p, connected: false } : p
         )
       )
-    },
-    game_intro: (msg: WSGameIntro) => {
+    } else if (isGameIntro(msg)) {
       setGamePhase('game_intro')
       setCurrentGame(msg.game_type)
-    },
-    round_results: (msg: WSRoundResults) => {
+    } else if (isRoundResults(msg)) {
       setGamePhase('round_results')
-      setTeams(msg.teams)
-    },
-    session_ended: () => {
+      if ('teams' in msg) {
+        setTeams(msg.teams)
+      }
+    } else if (isSessionEnded(msg)) {
       setGamePhase('ended')
-    },
-  }), [])
-
-  // Handle WebSocket messages using handler lookup
-  const handleMessage = useCallback((data: Record<string, unknown>) => {
-    const msg = data as { type: string } & Record<string, unknown>
-    const handler = messageHandlers[msg.type as keyof typeof messageHandlers]
-    if (handler) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      handler(msg as any)
     }
-  }, [messageHandlers])
+  }, [])
 
   // WebSocket connection
-  const { isConnected, send, connectionStatus } = useWebSocket({
+  const { isConnected, send, connectionStatus } = useWebSocket<HostWSMessage>({
     sessionCode: code || '',
     role: 'host',
     token,

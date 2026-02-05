@@ -59,9 +59,11 @@ export function CreateSession() {
         chaos_level: chaosLevel,
         team_count: teamCount,
       })
+      // Navigate on success - if this throws, finally will reset state
       navigate(`/host/${result.session_code}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create session')
+    } finally {
       setCreating(false)
     }
   }

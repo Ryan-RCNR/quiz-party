@@ -16,6 +16,7 @@ import {
   isRoundResults,
   isSessionEnded,
 } from '@quiz-party/shared'
+import { QRCodeDisplay } from '../components'
 
 export function HostScreen() {
   const { code } = useParams<{ code: string }>()
@@ -221,11 +222,16 @@ export function HostScreen() {
         </div>
       </div>
 
-      {/* Instructions for students */}
-      <div className="glass rounded-xl p-6 text-center">
-        <p className="text-white/60">
-          Students join at <span className="text-ice font-mono">quizparty.rcnr.net</span>
-        </p>
+      {/* Join Instructions with QR Code */}
+      <div className="glass rounded-xl p-6">
+        <div className="flex items-center justify-center gap-8">
+          <div className="text-center">
+            <p className="text-white/60 mb-2">Students join at</p>
+            <p className="text-ice font-mono text-xl">quizparty.rcnr.net</p>
+            <p className="text-white/40 text-sm mt-2">Code: <span className="font-mono text-ice">{code}</span></p>
+          </div>
+          {code && <QRCodeDisplay sessionCode={code} />}
+        </div>
       </div>
     </div>
   )

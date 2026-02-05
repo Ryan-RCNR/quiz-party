@@ -58,11 +58,15 @@ export function useWebSocket({
   const connect = useCallback(() => {
     if (!enabled || !sessionCode) return;
 
-    const baseUrl = wsUrl || import.meta.env.VITE_WS_URL || (
-      typeof window !== 'undefined' && window.location.protocol === 'https:'
-        ? 'wss://localhost:8000'
-        : 'ws://localhost:8000'
-    );
+    // Determine WebSocket URL with secure defaults
+    const getDefaultWsUrl = () => {
+      if (typeof window === 'undefined') return 'ws://localhost:8000';
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      // In production, use the current host; in development, use localhost
+      const host = import.meta.env.DEV ? 'localhost:8000' : window.location.host;
+      return `${protocol}//${host}`;
+    };
+    const baseUrl = wsUrl || import.meta.env.VITE_WS_URL || getDefaultWsUrl();
     const url = `${baseUrl}/ws/quizparty/${sessionCode}`;
     setConnectionStatus(reconnectAttempts.current > 0 ? 'reconnecting' : 'connecting');
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import {
@@ -104,6 +104,12 @@ export function HostScreen() {
     onMessage: handleMessage,
     enabled: !!code && !!token,
   })
+
+  // Memoize sorted teams to prevent unnecessary re-renders
+  const sortedTeams = useMemo(
+    () => [...teams].sort((a, b) => a.rank - b.rank),
+    [teams]
+  )
 
   const handleStartGame = () => {
     send({ type: 'start_game' })
@@ -211,7 +217,7 @@ export function HostScreen() {
         <div className="glass rounded-xl p-6">
           <h3 className="text-lg font-bold text-white mb-4">Team Scores</h3>
           <div className="space-y-2">
-            {teams.map((t) => (
+            {sortedTeams.map((t) => (
               <div
                 key={t.team_id}
                 className="flex items-center justify-between p-3 rounded-lg bg-white/5"
@@ -223,7 +229,7 @@ export function HostScreen() {
                 <span className="text-white font-mono">{t.total_score}</span>
               </div>
             ))}
-            {teams.length === 0 && (
+            {sortedTeams.length === 0 && (
               <p className="text-center text-white/40 py-8">
                 Scores will appear once the game starts
               </p>

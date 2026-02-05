@@ -99,6 +99,14 @@ export function useWebSocket({
       try {
         const data = JSON.parse(event.data);
 
+        // Basic validation: must be an object with a type property
+        if (typeof data !== 'object' || data === null || typeof data.type !== 'string') {
+          if (import.meta.env.DEV) {
+            console.warn('Invalid WebSocket message format:', data);
+          }
+          return;
+        }
+
         // Handle ping with pong
         if (data.type === 'ping') {
           ws.send(JSON.stringify({ type: 'pong' }));
@@ -106,8 +114,11 @@ export function useWebSocket({
         }
 
         onMessageRef.current?.(data);
-      } catch {
-        // Invalid JSON — ignore
+      } catch (error) {
+        // Invalid JSON
+        if (import.meta.env.DEV) {
+          console.warn('Failed to parse WebSocket message:', error);
+        }
       }
     };
 

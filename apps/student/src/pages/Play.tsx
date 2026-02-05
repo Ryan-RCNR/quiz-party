@@ -70,7 +70,7 @@ export function Play() {
         break
       }
       case 'round_results': {
-        const yourScore = msg.your_score as number | undefined
+        const yourScore = typeof msg.your_score === 'number' ? msg.your_score : undefined
         setState((prev) => ({
           ...prev,
           phase: 'intermission',

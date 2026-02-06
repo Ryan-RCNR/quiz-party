@@ -60,6 +60,7 @@ export function QuestionBanks() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Bank name *"
+            maxLength={50}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-ice"
           />
           <input
@@ -67,6 +68,7 @@ export function QuestionBanks() {
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
             placeholder="Subject (optional)"
+            maxLength={30}
             className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-ice"
           />
           <button

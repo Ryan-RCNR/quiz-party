@@ -102,6 +102,7 @@ export function CreateSession() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Chapter 5 Review"
+            maxLength={100}
             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-ice"
           />
         </div>

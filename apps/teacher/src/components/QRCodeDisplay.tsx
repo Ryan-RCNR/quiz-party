@@ -61,7 +61,6 @@ export function QRCodeDisplay({ sessionCode, baseUrl = 'quizparty.rcnr.net', siz
   const joinUrl = `https://${baseUrl}/join?code=${sessionCode}`;
 
   const qrMatrix = useMemo(() => generateQRMatrix(joinUrl), [joinUrl]);
-  const moduleSize = size / qrMatrix.length;
 
   return (
     <div className="flex flex-col items-center gap-2">

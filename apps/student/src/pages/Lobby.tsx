@@ -1,13 +1,14 @@
 import { useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useWebSocket, playerAPI } from '@quiz-party/shared'
+import type { WebSocketMessageData } from '@quiz-party/shared'
 
 export function Lobby() {
   const { code } = useParams<{ code: string }>()
   const navigate = useNavigate()
   const session = playerAPI.getStoredSession()
 
-  const handleMessage = useCallback((data: Record<string, unknown>) => {
+  const handleMessage = useCallback((data: WebSocketMessageData) => {
     if (data.type === 'game_intro' || data.type === 'question') {
       navigate(`/play/${code}`)
     }

@@ -36,7 +36,7 @@ export interface WSOutboundHostAction {
 
 export type WSOutboundMessage = WSOutboundInit | WSOutboundAnswer | WSOutboundHostAction | { type: 'pong' };
 
-interface UseWebSocketOptions<T extends WebSocketMessageData = WebSocketMessageData> {
+export interface UseWebSocketOptions<T extends WebSocketMessageData = WebSocketMessageData> {
   sessionCode: string;
   role: 'host' | 'player';
   token?: string;
@@ -49,7 +49,7 @@ interface UseWebSocketOptions<T extends WebSocketMessageData = WebSocketMessageD
   wsUrl?: string;
 }
 
-interface UseWebSocketReturn {
+export interface UseWebSocketReturn {
   isConnected: boolean;
   send: (data: WSOutboundMessage | Record<string, unknown>) => void;
   connectionStatus: 'connecting' | 'connected' | 'reconnecting' | 'disconnected';

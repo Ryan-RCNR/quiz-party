@@ -102,23 +102,27 @@ export function Play() {
     enabled: !!code && !!session,
   })
 
-  // Timer countdown - only restart when phase changes or question_id changes
+  // Timer countdown - starts fresh when entering question phase with a new question
   const currentQuestionId = state.currentQuestion?.question_id ?? null
   useEffect(() => {
+    if (state.phase !== 'question') return
+
+    // Track question changes to detect new questions
     const isNewQuestion = currentQuestionId !== lastQuestionIdRef.current
     lastQuestionIdRef.current = currentQuestionId
 
-    if (state.phase === 'question' && (isNewQuestion || state.timeRemaining > 0)) {
-      timerRef.current = setInterval(() => {
-        setState((prev) => {
-          if (prev.timeRemaining <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current)
-            return { ...prev, timeRemaining: 0 }
-          }
-          return { ...prev, timeRemaining: prev.timeRemaining - 1 }
-        })
-      }, 1000)
-    }
+    if (!isNewQuestion) return
+
+    timerRef.current = setInterval(() => {
+      setState((prev) => {
+        if (prev.timeRemaining <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          return { ...prev, timeRemaining: 0 }
+        }
+        return { ...prev, timeRemaining: prev.timeRemaining - 1 }
+      })
+    }, 1000)
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
@@ -131,14 +135,15 @@ export function Play() {
   }, [session, navigate])
 
   const handleAnswer = (index: number) => {
-    if (state.selectedAnswer !== null || !state.currentQuestion) return
+    const { currentQuestion, selectedAnswer, timeRemaining } = state
+    if (selectedAnswer !== null || !currentQuestion) return
 
     setState((prev) => ({ ...prev, selectedAnswer: index }))
     send({
       type: 'answer',
-      question_id: state.currentQuestion!.question_id,
+      question_id: currentQuestion.question_id,
       answer_index: index,
-      time_ms: (state.currentQuestion!.time_limit - state.timeRemaining) * 1000,
+      time_ms: (currentQuestion.time_limit - timeRemaining) * 1000,
     })
   }
 

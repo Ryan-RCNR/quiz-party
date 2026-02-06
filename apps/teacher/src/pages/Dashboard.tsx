@@ -141,7 +141,7 @@ export function Dashboard() {
                 <Link
                   key={b.id}
                   to={`/banks/${b.id}`}
-                  className="glass rounded-xl p-4 flex items-center justify-between block hover:bg-white/5 transition-colors"
+                  className="glass rounded-xl p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
                 >
                   <div>
                     <p className="font-medium text-white">{b.name}</p>

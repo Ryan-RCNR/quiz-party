@@ -18,8 +18,8 @@
  */
 export function createMessageDispatcher<
   THandlers extends Record<string, (msg: Record<string, unknown>) => void>
->(handlers: THandlers) {
-  return (data: Record<string, unknown>) => {
+>(handlers: THandlers): (data: Record<string, unknown>) => boolean {
+  return (data: Record<string, unknown>): boolean => {
     const msg = data as { type: string } & Record<string, unknown>;
     const handler = handlers[msg.type as keyof THandlers];
 

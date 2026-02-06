@@ -12,6 +12,32 @@ export function Join() {
 
   // Check for existing session
   const existing = !showNewGameForm ? playerAPI.getStoredSession() : null
+
+  const handleReconnect = async (session: PlayerSession) => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await playerAPI.reconnect(session.sessionCode, session.playerToken)
+      const updated: PlayerSession = {
+        ...session,
+        teamId: res.team_id,
+        teamName: res.team_name,
+      }
+      playerAPI.storeSession(updated)
+      const destination = res.status === 'lobby' ? 'lobby' : 'play'
+      navigate(`/${destination}/${session.sessionCode}`)
+    } catch {
+      playerAPI.clearSession()
+      setError('Session expired. Join a new game.')
+      setLoading(false)
+    }
+  }
+
+  const handleJoinDifferentGame = () => {
+    playerAPI.clearSession()
+    setShowNewGameForm(true)
+  }
+
   if (existing) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -21,38 +47,14 @@ export function Join() {
             {existing.displayName} in {existing.sessionCode}
           </p>
           <button
-            onClick={async () => {
-              setLoading(true)
-              setError('')
-              try {
-                const res = await playerAPI.reconnect(existing.sessionCode, existing.playerToken)
-                const updated: PlayerSession = {
-                  ...existing,
-                  teamId: res.team_id,
-                  teamName: res.team_name,
-                }
-                playerAPI.storeSession(updated)
-                if (res.status === 'lobby') {
-                  navigate(`/lobby/${existing.sessionCode}`)
-                } else {
-                  navigate(`/play/${existing.sessionCode}`)
-                }
-              } catch {
-                playerAPI.clearSession()
-                setError('Session expired. Join a new game.')
-                setLoading(false)
-              }
-            }}
+            onClick={() => handleReconnect(existing)}
             disabled={loading}
             className="w-full py-3 bg-[var(--ice)] text-[var(--deep-sea)] font-bold rounded-xl mb-3 disabled:opacity-50"
           >
             {loading ? 'Reconnecting...' : 'Rejoin Game'}
           </button>
           <button
-            onClick={() => {
-              playerAPI.clearSession()
-              setShowNewGameForm(true)
-            }}
+            onClick={handleJoinDifferentGame}
             className="text-white/40 text-sm underline"
           >
             Join a different game

@@ -95,6 +95,12 @@ export function HostScreen() {
     [teams]
   )
 
+  // Memoize current game info to avoid repeated lookups
+  const currentGameInfo = useMemo(
+    () => currentGame ? GAME_INFO[currentGame as keyof typeof GAME_INFO] : null,
+    [currentGame]
+  )
+
   const sendStartGameSignal = () => {
     send({ type: 'start_game' })
   }
@@ -158,15 +164,11 @@ export function HostScreen() {
       </div>
 
       {/* Current Game Info */}
-      {currentGame && GAME_INFO[currentGame as keyof typeof GAME_INFO] && (
+      {currentGameInfo && (
         <div className="glass rounded-xl p-6 text-center">
-          <p className="text-4xl mb-2">{GAME_INFO[currentGame as keyof typeof GAME_INFO].emoji}</p>
-          <h2 className="text-2xl font-bold text-white">
-            {GAME_INFO[currentGame as keyof typeof GAME_INFO].name}
-          </h2>
-          <p className="text-white/60">
-            {GAME_INFO[currentGame as keyof typeof GAME_INFO].description}
-          </p>
+          <p className="text-4xl mb-2">{currentGameInfo.emoji}</p>
+          <h2 className="text-2xl font-bold text-white">{currentGameInfo.name}</h2>
+          <p className="text-white/60">{currentGameInfo.description}</p>
         </div>
       )}
 

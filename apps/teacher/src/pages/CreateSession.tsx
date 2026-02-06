@@ -134,21 +134,25 @@ export function CreateSession() {
         <div className="glass rounded-xl p-6">
           <label className="block text-white/80 font-medium mb-3">Session Length</label>
           <div className="grid grid-cols-3 gap-3">
-            {(Object.entries(PRESETS) as [SessionPreset, typeof PRESETS[SessionPreset]][]).map(([key, info]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setPreset(key)}
-                className={`p-4 rounded-lg border-2 text-center transition-all ${
-                  preset === key
-                    ? 'border-ice bg-ice/10 text-white'
-                    : 'border-white/10 text-white/60 hover:border-white/30'
-                }`}
-              >
-                <p className="font-bold">{info.name}</p>
-                <p className="text-xs opacity-60">{info.description}</p>
-              </button>
-            ))}
+            {Object.entries(PRESETS).map(([key, info]) => {
+              const presetKey = key as SessionPreset
+              const isSelected = preset === presetKey
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setPreset(presetKey)}
+                  className={`p-4 rounded-lg border-2 text-center transition-all ${
+                    isSelected
+                      ? 'border-ice bg-ice/10 text-white'
+                      : 'border-white/10 text-white/60 hover:border-white/30'
+                  }`}
+                >
+                  <p className="font-bold">{info.name}</p>
+                  <p className="text-xs opacity-60">{info.description}</p>
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -156,21 +160,25 @@ export function CreateSession() {
         <div className="glass rounded-xl p-6">
           <label className="block text-white/80 font-medium mb-3">Chaos Level</label>
           <div className="grid grid-cols-3 gap-3">
-            {(Object.entries(CHAOS_LEVELS) as [ChaosLevel, typeof CHAOS_LEVELS[ChaosLevel]][]).map(([key, info]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setChaosLevel(key)}
-                className={`p-4 rounded-lg border-2 text-center transition-all ${
-                  chaosLevel === key
-                    ? 'border-ice bg-ice/10 text-white'
-                    : 'border-white/10 text-white/60 hover:border-white/30'
-                }`}
-              >
-                <p className="font-bold">{info.name}</p>
-                <p className="text-xs opacity-60">{info.description}</p>
-              </button>
-            ))}
+            {Object.entries(CHAOS_LEVELS).map(([key, info]) => {
+              const chaosKey = key as ChaosLevel
+              const isSelected = chaosLevel === chaosKey
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setChaosLevel(chaosKey)}
+                  className={`p-4 rounded-lg border-2 text-center transition-all ${
+                    isSelected
+                      ? 'border-ice bg-ice/10 text-white'
+                      : 'border-white/10 text-white/60 hover:border-white/30'
+                  }`}
+                >
+                  <p className="font-bold">{info.name}</p>
+                  <p className="text-xs opacity-60">{info.description}</p>
+                </button>
+              )
+            })}
           </div>
         </div>
 

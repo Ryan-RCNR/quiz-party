@@ -5,7 +5,7 @@ import { CreateSession } from './pages/CreateSession'
 import { HostScreen } from './pages/HostScreen'
 import { QuestionBanks } from './pages/QuestionBanks'
 
-function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <div className="min-h-screen">
       <header className="glass border-b border-white/10 px-6 py-4">
@@ -23,7 +23,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <>
       <SignedIn>
@@ -36,7 +36,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function App() {
+export default function App(): JSX.Element {
   return (
     <BrowserRouter>
       <Routes>

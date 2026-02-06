@@ -7,7 +7,7 @@ Live multiplayer quiz game with mini-games and team competition. A Turborepo mon
 ```
 quiz-party/
 ├── apps/
-│   ├── teacher/          # Teacher dashboard → quizparty.rcnr.ai
+│   ├── teacher/          # Teacher dashboard → quizparty.rcnr.net
 │   └── student/          # Student game UI  → quizparty.rcnr.net
 ├── packages/
 │   └── shared/           # Shared hooks, types, API client
@@ -36,15 +36,15 @@ pnpm build
 
 ### Teacher App (`apps/teacher/.env`)
 ```
-VITE_API_URL=https://realtime.rcnr.ai
-VITE_WS_URL=wss://realtime.rcnr.ai
+VITE_API_URL=https://realtime.rcnr.net
+VITE_WS_URL=wss://realtime.rcnr.net
 VITE_CLERK_PUBLISHABLE_KEY=pk_xxxxx
 ```
 
 ### Student App (`apps/student/.env`)
 ```
-VITE_API_URL=https://realtime.rcnr.ai
-VITE_WS_URL=wss://realtime.rcnr.ai
+VITE_API_URL=https://realtime.rcnr.net
+VITE_WS_URL=wss://realtime.rcnr.net
 ```
 
 ## Mini-Games
@@ -63,7 +63,7 @@ VITE_WS_URL=wss://realtime.rcnr.ai
 
 Both apps deploy to Vercel from this monorepo:
 
-- **Teacher App**: `quizparty.rcnr.ai`
+- **Teacher App**: `quizparty.rcnr.net`
 - **Student App**: `quizparty.rcnr.net` (school-friendly domain)
 
 Each app has its own `vercel.json` configuration.
@@ -71,5 +71,5 @@ Each app has its own `vercel.json` configuration.
 ## Backend
 
 Both apps connect to the `rcnr-realtime-api` service:
-- REST API: `https://realtime.rcnr.ai/api/quizparty/*`
-- WebSocket: `wss://realtime.rcnr.ai/ws/quizparty/{session_code}`
+- REST API: `https://realtime.rcnr.net/api/quizparty/*`
+- WebSocket: `wss://realtime.rcnr.net/ws/quizparty/{session_code}`

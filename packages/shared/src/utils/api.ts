@@ -4,6 +4,17 @@
  * Shared API client for backend communication
  */
 
+// Extend window type for Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      session?: {
+        getToken: () => Promise<string | null>;
+      };
+    };
+  }
+}
+
 import type {
   SessionConfig,
   SessionCreateResponse,

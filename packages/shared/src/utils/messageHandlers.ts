@@ -17,15 +17,14 @@
  * dispatch(data); // Automatically routes to correct handler
  */
 export function createMessageDispatcher<
-  THandlers extends Record<string, (msg: never) => void>
+  THandlers extends Record<string, (msg: Record<string, unknown>) => void>
 >(handlers: THandlers) {
   return (data: Record<string, unknown>) => {
     const msg = data as { type: string } & Record<string, unknown>;
     const handler = handlers[msg.type as keyof THandlers];
 
     if (handler) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (handler as (msg: any) => void)(msg);
+      handler(msg);
       return true;
     }
 

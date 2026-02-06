@@ -200,4 +200,3 @@ export function useWebSocket<T extends WebSocketMessageData = WebSocketMessageDa
   return { isConnected, send, connectionStatus };
 }
 
-export type { UseWebSocketOptions, UseWebSocketReturn, WebSocketMessageData, WSOutboundMessage };

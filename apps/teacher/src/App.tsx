@@ -1,19 +1,148 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, UserButton } from '@clerk/clerk-react'
+import { BookOpen, AlertCircle, PlusCircle } from 'lucide-react'
 import { Dashboard } from './pages/Dashboard'
 import { CreateSession } from './pages/CreateSession'
 import { HostScreen } from './pages/HostScreen'
 import { QuestionBanks } from './pages/QuestionBanks'
+import { HowItWorksOverlay, useHowItWorks } from './components/HowItWorksOverlay'
+import type { ReactNode } from 'react'
 
-function Layout({ children }: { children: React.ReactNode }) {
+/* ── RCNR Nav Components ─────────────────────────────────────── */
+
+function RCNRLogo(): React.JSX.Element {
+  return (
+    <a
+      href="https://rcnr.net/dashboard"
+      className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand/10 hover:bg-brand/20 transition-colors"
+      title="Back to Dashboard"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M50 15L85 75H15L50 15Z"
+          fill="currentColor"
+          className="text-brand"
+        />
+        <path
+          d="M50 35L70 65H30L50 35Z"
+          fill="currentColor"
+          className="text-surface"
+        />
+      </svg>
+    </a>
+  )
+}
+
+function NavButton({ onClick, icon, label, title }: {
+  onClick: () => void
+  icon: ReactNode
+  label: string
+  title: string
+}): React.JSX.Element {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 px-3 py-2 text-brand/70 hover:text-brand hover:bg-white/5 rounded-lg transition-colors"
+      title={title}
+    >
+      {icon}
+      <span className="hidden md:inline text-sm">{label}</span>
+    </button>
+  )
+}
+
+function NavActions({ onHowItWorks }: { onHowItWorks?: () => void }): React.JSX.Element {
+  const handleReport = () => {
+    window.open('https://rcnr.net/dashboard?report=true&tool=quizparty', '_blank')
+  }
+
+  const handleRequest = () => {
+    window.open('https://rcnr.net/dashboard?request=true', '_blank')
+  }
+
+  return (
+    <>
+      {onHowItWorks && (
+        <NavButton
+          onClick={onHowItWorks}
+          title="How this tool works"
+          label="How It Works"
+          icon={<BookOpen size={18} />}
+        />
+      )}
+      <NavButton
+        onClick={handleReport}
+        title="Report a bug"
+        label="Report Bug"
+        icon={<AlertCircle size={18} />}
+      />
+      <NavButton
+        onClick={handleRequest}
+        title="Request a tool to be made"
+        label="Request Tool"
+        icon={<PlusCircle size={18} />}
+      />
+    </>
+  )
+}
+
+/* ── How It Works Sections ───────────────────────────────────── */
+
+const HOW_IT_WORKS_SECTIONS = [
+  {
+    title: "Getting Started",
+    icon: <BookOpen size={16} />,
+    items: [
+      "Create a new quiz session from your question bank or import from QuizForge",
+      "Share the game code with students -- no accounts needed to play",
+      "Host the live game with real-time leaderboard on your screen",
+      "Review results and scores after the session ends",
+    ],
+  },
+  {
+    title: "Tips",
+    icon: <BookOpen size={16} />,
+    items: [
+      "Import questions directly from QuizForge to save time",
+      "Use team mode for collaborative review sessions",
+      "The leaderboard and music keep students engaged and competitive",
+      "Save your games to reuse them across different class periods",
+    ],
+  },
+  {
+    title: "Limitations",
+    icon: <BookOpen size={16} />,
+    items: [
+      "Maximum 100 students per game session",
+      "Requires stable internet for all participants",
+      "No team mode yet (coming soon)",
+    ],
+  },
+]
+
+/* ── Layout ──────────────────────────────────────────────────── */
+
+function Layout({ children, onHowItWorks }: { children: React.ReactNode; onHowItWorks: () => void }) {
   return (
     <div className="min-h-screen">
-      <header className="glass border-b border-white/10 px-6 py-4">
+      <header className="glass border-b border-brand/15 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-ice" style={{ fontFamily: 'var(--font-display)' }}>
-            Quiz Party
-          </h1>
-          <UserButton afterSignOutUrl="/" />
+          <div className="flex items-center gap-4">
+            <RCNRLogo />
+            <h1 className="text-xl font-bold text-brand" style={{ fontFamily: 'var(--font-display)' }}>
+              Quiz Party
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <NavActions onHowItWorks={onHowItWorks} />
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </header>
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -23,11 +152,13 @@ function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+/* ── Protected Route ─────────────────────────────────────────── */
+
+function ProtectedRoute({ children, onHowItWorks }: { children: React.ReactNode; onHowItWorks: () => void }) {
   return (
     <>
       <SignedIn>
-        <Layout>{children}</Layout>
+        <Layout onHowItWorks={onHowItWorks}>{children}</Layout>
       </SignedIn>
       <SignedOut>
         <RedirectToSignIn />
@@ -36,14 +167,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
+/* ── App ─────────────────────────────────────────────────────── */
+
 export default function App() {
+  const howItWorks = useHowItWorks("quizparty")
+
   return (
     <BrowserRouter>
       <Routes>
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onHowItWorks={howItWorks.open}>
               <Dashboard />
             </ProtectedRoute>
           }
@@ -51,7 +186,7 @@ export default function App() {
         <Route
           path="/create"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onHowItWorks={howItWorks.open}>
               <CreateSession />
             </ProtectedRoute>
           }
@@ -59,7 +194,7 @@ export default function App() {
         <Route
           path="/banks"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onHowItWorks={howItWorks.open}>
               <QuestionBanks />
             </ProtectedRoute>
           }
@@ -67,13 +202,20 @@ export default function App() {
         <Route
           path="/host/:code"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onHowItWorks={howItWorks.open}>
               <HostScreen />
             </ProtectedRoute>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      <HowItWorksOverlay
+        isOpen={howItWorks.isOpen}
+        onClose={howItWorks.close}
+        toolName="Quiz Party"
+        sections={HOW_IT_WORKS_SECTIONS}
+      />
     </BrowserRouter>
   )
 }

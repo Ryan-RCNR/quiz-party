@@ -149,7 +149,7 @@ export function HostScreen() {
             <button
               onClick={sendStartGameSignal}
               disabled={players.length < 2}
-              className="px-6 py-3 bg-ice text-[var(--deep-sea)] font-bold rounded-lg disabled:opacity-40 hover:bg-ice-light transition-colors"
+              className="btn-amber px-6 py-3 disabled:opacity-40"
             >
               Start Game
             </button>

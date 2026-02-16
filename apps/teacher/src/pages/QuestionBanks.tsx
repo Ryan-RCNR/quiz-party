@@ -74,7 +74,7 @@ export function QuestionBanks() {
           <button
             type="submit"
             disabled={creating || !newName.trim()}
-            className="px-6 py-3 bg-ice text-[var(--deep-sea)] font-bold rounded-lg disabled:opacity-40 hover:bg-ice-light transition-colors"
+            className="btn-amber px-6 py-3 disabled:opacity-40"
           >
             {creating ? 'Creating...' : 'Create Bank'}
           </button>

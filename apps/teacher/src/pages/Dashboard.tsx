@@ -63,7 +63,7 @@ export function Dashboard() {
         </h2>
         <Link
           to="/create"
-          className="px-6 py-3 bg-ice text-[var(--deep-sea)] font-semibold rounded-lg hover:bg-ice-light transition-colors"
+          className="btn-amber px-6 py-3"
         >
           New Session
         </Link>

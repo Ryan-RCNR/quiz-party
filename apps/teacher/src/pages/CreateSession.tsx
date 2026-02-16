@@ -206,7 +206,7 @@ export function CreateSession() {
         <button
           type="submit"
           disabled={creating || !selectedBank}
-          className="w-full py-4 bg-ice text-[var(--deep-sea)] font-bold text-lg rounded-xl disabled:opacity-40 hover:bg-ice-light transition-colors"
+          className="btn-amber w-full py-4 text-lg rounded-xl disabled:opacity-40"
         >
           {creating ? 'Creating...' : 'Create Session'}
         </button>

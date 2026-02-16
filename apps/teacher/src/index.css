@@ -23,6 +23,27 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+/* Subtle grid background — matches rcnr.net */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(153, 217, 217, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(153, 217, 217, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
 .glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);

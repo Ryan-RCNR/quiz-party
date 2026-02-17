@@ -5,14 +5,11 @@
   --deep-sea: #0a1628;
   --deep-sea-light: #1a2d4a;
   --ice: #67e8f9;
-  --ice-light: #a5f3fc;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
 
 body {
-  margin: 0;
-  min-height: 100vh;
   background: linear-gradient(135deg, var(--deep-sea) 0%, var(--deep-sea-light) 100%);
   font-family: system-ui, -apple-system, sans-serif;
 }

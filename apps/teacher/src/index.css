@@ -6,8 +6,6 @@
 :root {
   --font-display: 'Bangers', cursive;
   --deep-sea-light: #1a2d4a;
-  --ice: #67e8f9;
-  --ice-light: #a5f3fc;
 }
 
 /* Override body background with quiz-party gradient */

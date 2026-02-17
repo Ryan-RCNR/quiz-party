@@ -184,7 +184,7 @@ export function HostScreen() {
               <div
                 key={p.player_id}
                 className={`p-3 rounded-lg ${
-                  p.connected ? 'bg-white/5' : 'bg-white/5 opacity-50'
+                  p.connected ? 'bg-[#0F2A3D]' : 'bg-[#0F2A3D] opacity-50'
                 }`}
               >
                 <p className="font-medium text-white truncate">{p.display_name}</p>
@@ -206,7 +206,7 @@ export function HostScreen() {
             {sortedTeams.map((t) => (
               <div
                 key={t.team_id}
-                className="flex items-center justify-between p-3 rounded-lg bg-white/5"
+                className="flex items-center justify-between p-3 rounded-lg bg-[#0F2A3D]"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold text-ice">#{t.rank}</span>

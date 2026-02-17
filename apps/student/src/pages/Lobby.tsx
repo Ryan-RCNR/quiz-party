@@ -57,7 +57,7 @@ export function Lobby() {
           </span>
         </div>
 
-        <div className="bg-white/5 rounded-xl p-6">
+        <div className="bg-[#0A1E2E] rounded-xl p-6">
           <div className="text-4xl mb-3">⏳</div>
           <p className="text-white font-medium">Waiting for host to start...</p>
           <p className="text-white/40 text-sm mt-2">Get ready to play!</p>

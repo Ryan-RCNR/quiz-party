@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@rcnr/theme':
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@playwright/test':
         specifier: ^1.41.0
@@ -438,6 +442,9 @@ packages:
     resolution: {integrity: sha512-6LdVIUERWxQMmUSSQi0I53GgCBYgM2RpGngCPY7hSeju+VrKjq3lvs7HpJoPbDiY5QM5EYRtRX5fvrinnMAz3w==}
     engines: {node: '>=18'}
     hasBin: true
+
+  '@rcnr/theme@1.0.0':
+    resolution: {integrity: sha512-Ueks6JaMLiYjiIShRPJxMFTjXXTS3DuVdPJR2KWJPCdSL67yPwgQ0rlBK/mNpRuxgwdoPtwxQ8aPYA2gTx4xdg==}
 
   '@rolldown/pluginutils@1.0.0-rc.2':
     resolution: {integrity: sha512-izyXV/v+cHiRfozX62W9htOAvwMo4/bXKDrQ+vom1L1qRuexPock/7VZDAhnpHCLNejd3NJ6hiab+tO0D44Rgw==}
@@ -1658,6 +1665,8 @@ snapshots:
   '@playwright/test@1.58.1':
     dependencies:
       playwright: 1.58.1
+
+  '@rcnr/theme@1.0.0': {}
 
   '@rolldown/pluginutils@1.0.0-rc.2': {}
 
